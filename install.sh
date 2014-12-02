@@ -1,30 +1,33 @@
-# set -o pipefail
+set -o pipefail
 
-
+# add a never version of git
+echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" > /etc/apt/sources.list.d/git-core.list;
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1DF1F24
 
 apt-get update
 apt-get upgrade -qqy
-apt-get install -qqy wget bzip2
-apt-get install -qqy --no-install-recommends python xvfb libxrender-dev libasound2 libdbus-glib-1-2 libgtk2.0-0
-#
+apt-get install -qqy git
+apt-get install -qqy --no-install-recommends firefox-dev python xvfb libxrender-dev libasound2 libdbus-glib-1-2 libgtk2.0-0
 
+mkdir -p /srv/var/
 
 # slimerjs
-mkdir -p /srv/var/slimerjs
-wget -qO- http://download.slimerjs.org/releases/$SLIMERJS_VER/slimerjs-$SLIMERJS_VER-linux-x86_64.tar.bz2 \
-  | tar -C /srv/var/slimerjs --strip-components=1 -xj > /dev/null
+
+git clone --branch ${SLIMERJS_GIT_TAG} --depth 1 ${SLIMERJS_GIT_URL} /srv/var/slimerjs
+rm -rf !$/.git
+
 cat <<\EOF > /srv/var/slimerjs/slimerjs.sh
 #!/usr/bin/env bash
-xvfb-run /srv/var/slimerjs/slimerjs $*
+xvfb-run /srv/var/slimerjs/src/slimerjs $*
 EOF
 chmod 755 /srv/var/slimerjs/slimerjs.sh
 ln -s /srv/var/slimerjs/slimerjs.sh /usr/bin/slimerjs
 
 
 # casperjs
-mkdir -p /srv/var/casperjs
-wget -qO- https://github.com/n1k0/casperjs/tarball/master \
-  | tar -C /srv/var/casperjs --strip-components=1 -xzv
+git clone --branch ${CASPERJS_GIT_TAG} --depth 1 ${CASPERJS_GIT_URL} /srv/var/casperjs
+rm -rf !$/.git
+
 cat <<\EOF > /srv/var/casperjs/casperjs.sh
 #!/usr/bin/env bash
 /srv/var/casperjs/bin/casperjs --engine=slimerjs $*
@@ -34,7 +37,7 @@ ln -s /srv/var/casperjs/casperjs.sh /usr/bin/casperjs
 
 
 # clean up
-apt-get purge -y --auto-remove git wget bzip2
-rm -rf /var/lib/apt/lists/*
+apt-get purge -y --auto-remove git
 apt-get autoremove -qqy
 apt-get clean all
+rm -rf /var/lib/apt/lists/*
