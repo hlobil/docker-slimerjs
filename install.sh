@@ -4,10 +4,12 @@ set -o pipefail
 echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" > /etc/apt/sources.list.d/git-core.list;
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1DF1F24
 
+echo "deb http://archive.canonical.com/ubuntu trusty partner" > /etc/apt/sources.list.d/partner.list
+
 apt-get update
 apt-get upgrade -qqy
 apt-get install -qqy git
-apt-get install -qqy --no-install-recommends firefox-dev python xvfb libxrender-dev libasound2 libdbus-glib-1-2 libgtk2.0-0
+apt-get install -qqy --no-install-recommends adobe-flashplugin firefox-dev python xvfb libxrender-dev libasound2 libdbus-glib-1-2 libgtk2.0-0
 
 mkdir -p /srv/var/
 
